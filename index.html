@@ -81,17 +81,27 @@
   <div class="article-inner">
     
     
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2022/08/24/%E6%92%92%E7%82%B9%E5%B7%A5%E5%85%B7/">UE 实现撒点工具</a>
+    </h1>
+  
+
+      </header>
+    
     <div class="e-content article-entry" itemprop="articleBody">
       
         <h1 id="WHY-amp-WHAT"><a href="#WHY-amp-WHAT" class="headerlink" title="WHY &amp; WHAT"></a>WHY &amp; WHAT</h1><p>在 UE 中模拟 Houdini 中的 Scatter 节点效果，实现一个简单的编辑器工具，支持对任意物体所占空间进行均匀撒点</p>
-<p><img src="/./images/Splash.png"></p>
+<p><img src="/../images/Splash.png"></p>
 <h1 id="HOW"><a href="#HOW" class="headerlink" title="HOW"></a>HOW</h1><p>所谓撒点，最直觉的方法是随机生成一些点数据，但一般的伪随机算法在随机次数不够多的情况下，其实很难保证结果是均匀分布的；而为了实现理想化的均匀，这里将用到一个简单又有效的算法：Halton Sequence</p>
 <h2 id="均匀"><a href="#均匀" class="headerlink" title="均匀"></a>均匀</h2><h3 id="Halton-Sequence"><a href="#Halton-Sequence" class="headerlink" title="Halton Sequence"></a>Halton Sequence</h3><ul>
 <li><p>给这个算法输入一个质数作为底数，循环多次，它将输出一串在 (0, 1) 区间内均匀分布的数，如果把它们一字排开，会发现区间的各分段包含的点数都大致相当，看上去似乎是随机的，但又比一般的伪随机要更加均匀、和谐；下图是分别用 Halton 算法和伪随机算法在二维空间下生成 300 个点的分布对比</p>
-<img src="./images/Halton_PseudoRandom_Comparison.png" style="zoom: 50%;" />
+<img src="../images/Halton_PseudoRandom_Comparison.png" style="zoom: 50%;" />
 </li>
 <li><p>UE 源码中提供了相应数学库: <code>\Engine\Source\Runtime\Core\Public\Math\Halton.h</code>，include 头文件后，直接调用现成的 Halton 算法即可</p>
-<p><img src="/./images/Halton_UE.png"></p>
+<p><img src="/../images/Halton_UE.png"></p>
 </li>
 <li><p>简单实现：下面这个函数，就能输出一串指定数量的、在 1 × 1 的二维平面上均匀分布的点，当然，如果你希望它们分布到一张更大的平面上，只需要对现有的 HaltonValue 扩大相应倍数即可</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;Math/Halton.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function">TArray&lt;FVector&gt; <span class="title">SimpleScatter</span><span class="params">(<span class="type">int</span> InScatterCount)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	TArray&lt;FVector&gt; OutPoints;</span><br><span class="line">	<span class="type">int</span> ScatterBaseX = <span class="number">2</span>;</span><br><span class="line">    <span class="type">int</span> ScatterBaseY = <span class="number">3</span>;</span><br><span class="line">	</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i &lt; InScatterCount; i++)</span><br><span class="line">	&#123;</span><br><span class="line">        <span class="type">float</span> HaltonX = <span class="built_in">Halton</span>(i, ScatterBaseX);</span><br><span class="line">        <span class="type">float</span> HaltonY = <span class="built_in">Halton</span>(i, ScatterBaseY);</span><br><span class="line">        FVector HaltonValue = <span class="built_in">FVector</span>(HaltonX, HaltonY, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">        OutPoints.<span class="built_in">Add</span>(HaltonValue);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> OutPoints;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
@@ -114,7 +124,7 @@
 <blockquote>
 <p><em>Note</em>: 这里只关注 transform 中的位置信息，并将它作为输入参数，后续把上述输出的 halton 值连入即可</p>
 </blockquote>
-<p><img src="/./images/CreateInstancedMesh_UE.png"></p>
+<p><img src="/../images/CreateInstancedMesh_UE.png"></p>
 </li>
 </ul>
 </li>
@@ -128,10 +138,10 @@
 <li><p>添加 Instanced Mesh 组件，设置好 Static Mesh</p>
 </li>
 <li><p>简单连接蓝图，并将撒点行为封装成一个勾选了 <strong>Call In Editor</strong> 的函数，便于直接在编辑器中点击执行</p>
-<p><img src="/./images/CallInEditor.png"></p>
+<p><img src="/../images/CallInEditor.png"></p>
 </li>
 <li><p>将这个 Actor 拖入场景中，指定撒点对象，点击按钮进行撒点</p>
-<p><img src="/./images/ScatterOperation.gif"></p>
+<p><img src="/../images/ScatterOperation.gif"></p>
 </li>
 </ul>
 <h1 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h1><p>此工具可应用的方向应该有很多，这里提出一种：从撒点结果中筛选出在 Navmesh 上的点，作为对地图所有可到达区域的采样点，运行时记录在各点的游戏状态(性能开销、资源信息等)，之后还将针对这个问题做进一步分享</p>
@@ -140,7 +150,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2022/08/24/%E6%92%92%E7%82%B9%E5%B7%A5%E5%85%B7/" data-id="cl76gz58d0001fsugh7447jaj" data-title="" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2022/08/24/%E6%92%92%E7%82%B9%E5%B7%A5%E5%85%B7/" data-id="cl76h7phz000168ugfc82cnrw" data-title="UE 实现撒点工具" class="article-share-link">Share</a>
       
       
       
@@ -191,7 +201,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2022/08/24/hello-world/" data-id="cl76gz5860000fsugex011q3u" data-title="Hello World" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2022/08/24/hello-world/" data-id="cl76h7pht000068ugdzd911b2" data-title="Hello World" class="article-share-link">Share</a>
       
       
       
@@ -234,7 +244,7 @@
       <ul>
         
           <li>
-            <a href="/2022/08/24/%E6%92%92%E7%82%B9%E5%B7%A5%E5%85%B7/">(no title)</a>
+            <a href="/2022/08/24/%E6%92%92%E7%82%B9%E5%B7%A5%E5%85%B7/">UE 实现撒点工具</a>
           </li>
         
           <li>
